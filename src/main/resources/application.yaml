@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: approval-workflow-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/approval_workflow
+    username: app_user
+    password: app_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
