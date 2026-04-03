@@ -9,5 +9,4 @@ public class ApprovalWorkflowApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApprovalWorkflowApiApplication.class, args);
 	}
-
 }
