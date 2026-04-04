@@ -1,0 +1,31 @@
+package com.kota.approvalworkflowapi.controller;
+
+import com.kota.approvalworkflowapi.dto.RequestInput;
+import com.kota.approvalworkflowapi.dto.RequestSummary;
+import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
+import com.kota.approvalworkflowapi.dto.request.CreateRequestResponse;
+import com.kota.approvalworkflowapi.service.RequestService;
+
+public class RequestController {
+
+    private final RequestService requestService;
+
+    public RequestController(RequestService requestService) {
+        this.requestService = requestService;
+    }
+
+    public CreateRequestResponse createRequest(CreateRequestRequest req) {
+        RequestInput input = RequestInput.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .build();
+        RequestSummary savedRequest = requestService.createRequest(input);
+        return CreateRequestResponse.builder()
+                .requestId(savedRequest.getRequestId())
+                .userName(savedRequest.getUserName())
+                .status(savedRequest.getStatus())
+                .title(savedRequest.getTitle())
+                .createdAt(savedRequest.getCreatedAt())
+                .build();
+    }
+}
