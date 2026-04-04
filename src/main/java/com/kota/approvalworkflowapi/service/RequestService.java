@@ -8,6 +8,7 @@ import com.kota.approvalworkflowapi.repository.RequestRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -43,5 +44,17 @@ public class RequestService {
                 .title(savedEntity.getTitle())
                 .createdAt(savedEntity.getCreatedAt())
                 .build();
+    }
+
+    public List<RequestSummary> getRequests() {
+        List<RequestEntity> requestEntities = requestRepository.getRequestsByUserId(USER_ID);
+        return requestEntities.stream()
+                .map(entity -> RequestSummary.builder()
+                        .requestId(entity.getRequestId())
+                        .userName(USER_NAME)
+                        .title(entity.getTitle())
+                        .status(entity.getStatus())
+                        .createdAt(entity.getCreatedAt())
+                        .build()).toList();
     }
 }

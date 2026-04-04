@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class InMemoryRequestRepository implements RequestRepository {
@@ -15,5 +16,10 @@ public class InMemoryRequestRepository implements RequestRepository {
     public RequestEntity saveRequest(RequestEntity entity) {
         requestEntities.add(entity);
         return entity;
+    }
+
+    @Override
+    public List<RequestEntity> getRequestsByUserId(String userId) {
+        return requestEntities.stream().filter(x -> Objects.equals(x.getUserId(), userId)).toList();
     }
 }
