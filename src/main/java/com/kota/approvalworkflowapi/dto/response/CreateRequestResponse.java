@@ -1,4 +1,4 @@
-package com.kota.approvalworkflowapi.dto.request;
+package com.kota.approvalworkflowapi.dto.response;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
 import lombok.Builder;

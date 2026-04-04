@@ -3,7 +3,7 @@ package com.kota.approvalworkflowapi.controller;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
-import com.kota.approvalworkflowapi.dto.request.CreateRequestResponse;
+import com.kota.approvalworkflowapi.dto.response.CreateRequestResponse;
 import com.kota.approvalworkflowapi.service.RequestService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
