@@ -5,16 +5,34 @@ import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.repository.InMemoryRequestRepository;
 import com.kota.approvalworkflowapi.repository.RequestRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RequestServiceTest {
 
+    RequestRepository requestRepository;
+    RequestService requestService;
+
+    @BeforeEach
+    void setup() {
+        requestRepository = new InMemoryRequestRepository();
+        requestService = new RequestService(requestRepository);
+    }
+
+    @AfterEach
+    void cleanup() {
+        requestRepository = null;
+        requestService = null;
+    }
+
     @Test
     void createRequest_shouldReturnDraftSummary() {
-        RequestRepository requestRepository = new InMemoryRequestRepository();
-        RequestService requestService = new RequestService(requestRepository);
 
         RequestInput input = RequestInput.builder()
                 .title("交通費精算")
@@ -29,5 +47,24 @@ class RequestServiceTest {
         assertEquals(RequestStatus.DRAFT, result.getStatus());
         assertEquals("user1", result.getUserName());
         assertNotNull(result.getCreatedAt());
+    }
+
+    @Test
+    void getRequests_shouldReturnSummaryList() {
+
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        requestService.createRequest(input1);
+
+        List<RequestSummary> result = requestService.getRequests();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("交通費精算", result.getFirst().getTitle());
+        assertEquals(RequestStatus.DRAFT, result.getFirst().getStatus());
+        assertEquals("user1", result.getFirst().getUserName());
     }
 }
