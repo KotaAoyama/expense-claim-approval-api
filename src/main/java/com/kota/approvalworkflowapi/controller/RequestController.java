@@ -5,7 +5,13 @@ import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestResponse;
 import com.kota.approvalworkflowapi.service.RequestService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
+@RequestMapping("/requests")
 public class RequestController {
 
     private final RequestService requestService;
@@ -14,7 +20,8 @@ public class RequestController {
         this.requestService = requestService;
     }
 
-    public CreateRequestResponse createRequest(CreateRequestRequest req) {
+    @PostMapping
+    public CreateRequestResponse createRequest(@RequestBody CreateRequestRequest req) {
         RequestInput input = RequestInput.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
