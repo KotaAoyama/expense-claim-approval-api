@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-
 public class RequestInput {
     private String title;
     private String description;

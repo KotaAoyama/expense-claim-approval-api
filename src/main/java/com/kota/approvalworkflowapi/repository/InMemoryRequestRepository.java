@@ -1,0 +1,19 @@
+package com.kota.approvalworkflowapi.repository;
+
+import com.kota.approvalworkflowapi.entity.RequestEntity;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class InMemoryRequestRepository implements RequestRepository {
+
+    private final List<RequestEntity> requestEntities = new ArrayList<>();
+
+    @Override
+    public RequestEntity saveRequest(RequestEntity entity) {
+        requestEntities.add(entity);
+        return entity;
+    }
+}
