@@ -1,6 +1,7 @@
 package com.kota.approvalworkflowapi.service;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
+import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.repository.InMemoryRequestRepository;
@@ -66,5 +67,28 @@ class RequestServiceTest {
         assertEquals("交通費精算", result.getFirst().getTitle());
         assertEquals(RequestStatus.DRAFT, result.getFirst().getStatus());
         assertEquals("user1", result.getFirst().getUserName());
+    }
+
+    @Test
+    void getRequestByID_shouldReturnDetail() {
+
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary requestSummary = requestService.createRequest(input1);
+
+        RequestDetail result = requestService.getRequestById(requestSummary.getRequestId());
+
+        assertNotNull(result);
+        assertEquals(requestSummary.getRequestId(), result.getRequestId());
+        assertEquals(requestSummary.getUserName(), result.getUserName());
+        assertEquals("交通費精算", result.getTitle());
+        assertEquals("4月分", result.getDescription());
+        assertEquals(RequestStatus.DRAFT, result.getStatus());
+        assertEquals("user1", result.getUserName());
+        assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getUpdatedAt());
     }
 }

@@ -8,4 +8,6 @@ public interface RequestRepository {
     RequestEntity saveRequest(RequestEntity entity);
 
     List<RequestEntity> getRequestsByUserId(String userId);
+
+    RequestEntity getRequestById(String requestId);
 }

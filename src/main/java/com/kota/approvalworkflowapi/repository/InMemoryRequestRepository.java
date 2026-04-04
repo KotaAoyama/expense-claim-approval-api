@@ -22,4 +22,11 @@ public class InMemoryRequestRepository implements RequestRepository {
     public List<RequestEntity> getRequestsByUserId(String userId) {
         return requestEntities.stream().filter(x -> Objects.equals(x.getUserId(), userId)).toList();
     }
+
+    @Override
+    public RequestEntity getRequestById(String requestId) {
+        return requestEntities.stream()
+                .filter(x -> Objects.equals(x.getRequestId(), requestId))
+                .toList().getFirst();
+    }
 }

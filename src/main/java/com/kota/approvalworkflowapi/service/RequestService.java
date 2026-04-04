@@ -1,6 +1,7 @@
 package com.kota.approvalworkflowapi.service;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
+import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.entity.RequestEntity;
@@ -56,5 +57,19 @@ public class RequestService {
                         .status(entity.getStatus())
                         .createdAt(entity.getCreatedAt())
                         .build()).toList();
+    }
+
+    public RequestDetail getRequestById(String requestId) {
+        RequestEntity requestEntity = requestRepository.getRequestById(requestId);
+        return RequestDetail.builder()
+                .requestId(requestEntity.getRequestId())
+                .userId(USER_ID)
+                .userName(USER_NAME)
+                .status(requestEntity.getStatus())
+                .title(requestEntity.getTitle())
+                .description(requestEntity.getDescription())
+                .createdAt(requestEntity.getCreatedAt())
+                .updatedAt(requestEntity.getUpdatedAt())
+                .build();
     }
 }
