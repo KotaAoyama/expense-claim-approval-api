@@ -1,9 +1,11 @@
 package com.kota.approvalworkflowapi.controller;
 
+import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
 import com.kota.approvalworkflowapi.dto.response.CreateRequestResponse;
+import com.kota.approvalworkflowapi.dto.response.RequestDetailResponse;
 import com.kota.approvalworkflowapi.dto.response.RequestSummaryResponse;
 import com.kota.approvalworkflowapi.service.RequestService;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +48,20 @@ public class RequestController {
                 .title(requestSummary.getTitle())
                 .createdAt(requestSummary.getCreatedAt())
                 .build()).toList();
+    }
+
+    @GetMapping("/{requestId}")
+    public RequestDetailResponse getRequestById(@PathVariable String requestId) {
+        RequestDetail requestDetail = requestService.getRequestById(requestId);
+        return RequestDetailResponse.builder()
+                .requestId(requestDetail.getRequestId())
+                .userId(requestDetail.getUserId())
+                .userName(requestDetail.getUserName())
+                .status(requestDetail.getStatus())
+                .title(requestDetail.getTitle())
+                .description(requestDetail.getDescription())
+                .createdAt(requestDetail.getCreatedAt())
+                .updatedAt(requestDetail.getUpdatedAt())
+                .build();
     }
 }
