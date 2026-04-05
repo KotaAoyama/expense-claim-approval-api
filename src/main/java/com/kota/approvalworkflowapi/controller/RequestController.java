@@ -4,11 +4,11 @@ import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
 import com.kota.approvalworkflowapi.dto.response.CreateRequestResponse;
+import com.kota.approvalworkflowapi.dto.response.RequestSummaryResponse;
 import com.kota.approvalworkflowapi.service.RequestService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/requests")
@@ -34,5 +34,17 @@ public class RequestController {
                 .title(savedRequest.getTitle())
                 .createdAt(savedRequest.getCreatedAt())
                 .build();
+    }
+
+    @GetMapping
+    public List<RequestSummaryResponse> getRequests() {
+        List<RequestSummary> requestSummaries = requestService.getRequests();
+        return requestSummaries.stream().map(requestSummary -> RequestSummaryResponse.builder()
+                .requestId(requestSummary.getRequestId())
+                .userName(requestSummary.getUserName())
+                .status(requestSummary.getStatus())
+                .title(requestSummary.getTitle())
+                .createdAt(requestSummary.getCreatedAt())
+                .build()).toList();
     }
 }
