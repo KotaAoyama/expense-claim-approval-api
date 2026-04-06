@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
-public class InMemoryRequestRepository implements RequestRepository {
+public class InMemoryRequestRepositoryImpl implements RequestRepository {
 
     private final List<RequestEntity> requestEntities = new ArrayList<>();
 

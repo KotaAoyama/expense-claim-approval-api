@@ -4,7 +4,7 @@ import com.kota.approvalworkflowapi.common.RequestStatus;
 import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
-import com.kota.approvalworkflowapi.repository.InMemoryRequestRepository;
+import com.kota.approvalworkflowapi.repository.InMemoryRequestRepositoryImpl;
 import com.kota.approvalworkflowapi.repository.RequestRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ class RequestServiceTest {
 
     @BeforeEach
     void setup() {
-        requestRepository = new InMemoryRequestRepository();
+        requestRepository = new InMemoryRequestRepositoryImpl();
         requestService = new RequestService(requestRepository);
     }
 
