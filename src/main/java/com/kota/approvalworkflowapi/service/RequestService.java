@@ -63,8 +63,8 @@ public class RequestService {
     }
 
     public RequestDetail getRequestById(String requestId) {
-        RequestEntity requestEntity = requestRepository.getRequestById(requestId);
-        return RequestDetail.from(requestEntity, USER_NAME);
+        RequestEntity requestEntity = getRequestOrThrow(requestId);
+        return toRequestDetail(requestEntity);
     }
 
     public RequestDetail submitRequest(String requestId) {
@@ -74,7 +74,7 @@ public class RequestService {
         }
         requestEntity.changeStatus(RequestStatus.SUBMITTED);
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
-        return RequestDetail.from(updatedEntity, USER_NAME);
+        return toRequestDetail(updatedEntity);
     }
 
     public RequestDetail approveRequest(String requestId) {
@@ -84,7 +84,7 @@ public class RequestService {
         }
         requestEntity.changeStatus(RequestStatus.APPROVED);
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
-        return RequestDetail.from(updatedEntity, USER_NAME);
+        return toRequestDetail(updatedEntity);
     }
 
     public RequestDetail rejectRequest(String requestId) {
@@ -94,7 +94,7 @@ public class RequestService {
         }
         requestEntity.changeStatus(RequestStatus.REJECTED);
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
-        return RequestDetail.from(updatedEntity, USER_NAME);
+        return toRequestDetail(updatedEntity);
     }
 
     private RequestEntity getRequestOrThrow(String requestId) {
@@ -103,5 +103,18 @@ public class RequestService {
         } catch (NoSuchElementException e) {
             throw new NotFoundException("No request is found");
         }
+    }
+
+    private RequestDetail toRequestDetail(RequestEntity entity) {
+        return RequestDetail.builder()
+                .requestId(entity.getRequestId())
+                .userId(entity.getUserId())
+                .userName(USER_NAME) // TODO
+                .status(entity.getStatus())
+                .title(entity.getTitle())
+                .description(entity.getDescription())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
     }
 }
