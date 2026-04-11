@@ -68,39 +68,40 @@ public class RequestService {
     }
 
     public RequestDetail submitRequest(String requestId) {
-
-        RequestEntity requestEntity;
-        try {
-            requestEntity = requestRepository.getRequestById(requestId);
-        } catch (NoSuchElementException e) {
-            throw new NotFoundException("No request is found");
-        }
+        RequestEntity requestEntity = getRequestOrThrow(requestId);
         if (!requestEntity.getStatus().canSubmit()) {
             throw new StatusConflictException("Only DRAFT requests can be submitted");
         }
-
         requestEntity.changeStatus(RequestStatus.SUBMITTED);
-
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
-
         return RequestDetail.from(updatedEntity, USER_NAME);
     }
 
     public RequestDetail approveRequest(String requestId) {
-        RequestEntity requestEntity;
-        try {
-            requestEntity = requestRepository.getRequestById(requestId);
-        } catch (NoSuchElementException e) {
-            throw new NotFoundException("No request is found");
-        }
+        RequestEntity requestEntity = getRequestOrThrow(requestId);
         if (!requestEntity.getStatus().canApprove()) {
             throw new StatusConflictException("Only SUBMITTED requests can be approved");
         }
-
         requestEntity.changeStatus(RequestStatus.APPROVED);
-
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
-
         return RequestDetail.from(updatedEntity, USER_NAME);
+    }
+
+    public RequestDetail rejectRequest(String requestId) {
+        RequestEntity requestEntity = getRequestOrThrow(requestId);
+        if (!requestEntity.getStatus().canReject()) {
+            throw new StatusConflictException("Only SUBMITTED requests can be rejected");
+        }
+        requestEntity.changeStatus(RequestStatus.REJECTED);
+        RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
+        return RequestDetail.from(updatedEntity, USER_NAME);
+    }
+
+    private RequestEntity getRequestOrThrow(String requestId) {
+        try {
+            return requestRepository.getRequestById(requestId);
+        } catch (NoSuchElementException e) {
+            throw new NotFoundException("No request is found");
+        }
     }
 }
