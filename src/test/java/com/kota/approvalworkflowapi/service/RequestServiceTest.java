@@ -4,6 +4,8 @@ import com.kota.approvalworkflowapi.common.RequestStatus;
 import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
+import com.kota.approvalworkflowapi.exception.NotFoundException;
+import com.kota.approvalworkflowapi.exception.StatusConflictException;
 import com.kota.approvalworkflowapi.repository.InMemoryRequestRepositoryImpl;
 import com.kota.approvalworkflowapi.repository.RequestRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +61,6 @@ class RequestServiceTest {
                 .build();
 
         requestService.createRequest(input1);
-
         List<RequestSummary> result = requestService.getRequests();
 
         assertNotNull(result);
@@ -78,7 +79,6 @@ class RequestServiceTest {
                 .build();
 
         RequestSummary requestSummary = requestService.createRequest(input1);
-
         RequestDetail result = requestService.getRequestById(requestSummary.getRequestId());
 
         assertNotNull(result);
@@ -149,5 +149,83 @@ class RequestServiceTest {
         assertNotNull(submittedTime);
         assertNotNull(result.getUpdatedAt());
         assertNotEquals(submittedTime, result.getUpdatedAt());
+    }
+
+    @Test
+    void approveRequest_should_throw_StatusConflictException_when_status_is_DRAFT() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary draftRequest = requestService.createRequest(input1);
+
+        assertThrows(StatusConflictException.class,
+                () -> requestService.approveRequest(draftRequest.getRequestId()));
+    }
+
+    @Test
+    void rejectRequest_should_throw_StatusConflictException_when_status_is_DRAFT() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary draftRequest = requestService.createRequest(input1);
+
+        assertThrows(StatusConflictException.class,
+                () -> requestService.rejectRequest(draftRequest.getRequestId()));
+    }
+
+    @Test
+    void submitRequest_should_throw_StatusConflictException_when_status_is_SUBMITTED() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail submittedRequest = requestService.submitRequest(draftRequest.getRequestId());
+
+        assertThrows(StatusConflictException.class,
+                () -> requestService.submitRequest(submittedRequest.getRequestId()));
+    }
+
+    @Test
+    void submitRequest_should_throw_NotFoundException_when_invalid_id_given() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        requestService.createRequest(input1);
+        assertThrows(NotFoundException.class,
+                () -> requestService.submitRequest("invalid_id"));
+    }
+
+    @Test
+    void approveRequest_should_throw_NotFoundException_when_invalid_id_given() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary draftRequest = requestService.createRequest(input1);
+        requestService.submitRequest(draftRequest.getRequestId());
+        assertThrows(NotFoundException.class,
+                () -> requestService.approveRequest("invalid_id"));
+    }
+
+    @Test
+    void rejectRequest_should_throw_NotFoundException_when_invalid_id_given() {
+        RequestInput input1 = RequestInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .build();
+
+        RequestSummary draftRequest = requestService.createRequest(input1);
+        requestService.submitRequest(draftRequest.getRequestId());
+        assertThrows(NotFoundException.class,
+                () -> requestService.rejectRequest("invalid_id"));
     }
 }
