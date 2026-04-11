@@ -53,15 +53,24 @@ public class RequestController {
     @GetMapping("/{requestId}")
     public RequestDetailResponse getRequestById(@PathVariable String requestId) {
         RequestDetail requestDetail = requestService.getRequestById(requestId);
-        return RequestDetailResponse.builder()
-                .requestId(requestDetail.getRequestId())
-                .userId(requestDetail.getUserId())
-                .userName(requestDetail.getUserName())
-                .status(requestDetail.getStatus())
-                .title(requestDetail.getTitle())
-                .description(requestDetail.getDescription())
-                .createdAt(requestDetail.getCreatedAt())
-                .updatedAt(requestDetail.getUpdatedAt())
-                .build();
+        return RequestDetailResponse.from(requestDetail);
+    }
+
+    @PostMapping("/{requestId}/submit")
+    public RequestDetailResponse submitRequest(@PathVariable String requestId) {
+        RequestDetail requestDetail = requestService.submitRequest(requestId);
+        return RequestDetailResponse.from(requestDetail);
+    }
+
+    @PostMapping("/{requestId}/approve")
+    public RequestDetailResponse approveRequest(@PathVariable String requestId) {
+        RequestDetail requestDetail = requestService.approveRequest(requestId);
+        return RequestDetailResponse.from(requestDetail);
+    }
+
+    @PostMapping("/{requestId}/reject")
+    public RequestDetailResponse rejectRequest(@PathVariable String requestId) {
+        RequestDetail requestDetail = requestService.rejectRequest(requestId);
+        return RequestDetailResponse.from(requestDetail);
     }
 }
