@@ -1,6 +1,8 @@
 package com.kota.approvalworkflowapi.service;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
+import com.kota.approvalworkflowapi.common.exception.NotFoundException;
+import com.kota.approvalworkflowapi.common.exception.StatusConflictException;
 import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -72,4 +75,33 @@ public class RequestService {
                 .updatedAt(requestEntity.getUpdatedAt())
                 .build();
     }
+
+    public RequestDetail submitRequest(String requestId) {
+
+        RequestEntity requestEntity;
+        try {
+            requestEntity = requestRepository.getRequestById(requestId);
+        } catch (NoSuchElementException e) {
+            throw new NotFoundException("No request is found");
+        }
+        if (!requestEntity.getStatus().isSubmittable()) {
+            throw new StatusConflictException("Only DRAFT requests are submittable");
+        }
+
+        requestEntity.changeStatus(RequestStatus.SUBMITTED);
+
+        RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
+
+        return RequestDetail.builder()
+                .requestId(updatedEntity.getRequestId())
+                .userId(updatedEntity.getUserId())
+                .userName(USER_NAME) // TODO: users テーブルを作ったら修正
+                .status(updatedEntity.getStatus())
+                .title(updatedEntity.getTitle())
+                .description(updatedEntity.getDescription())
+                .createdAt(updatedEntity.getCreatedAt())
+                .updatedAt(updatedEntity.getUpdatedAt())
+                .build();
+    }
+
 }

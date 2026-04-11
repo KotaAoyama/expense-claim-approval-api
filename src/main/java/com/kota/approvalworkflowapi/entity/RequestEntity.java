@@ -29,4 +29,9 @@ public class RequestEntity {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    public void changeStatus(RequestStatus status) {
+        this.status = status;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
