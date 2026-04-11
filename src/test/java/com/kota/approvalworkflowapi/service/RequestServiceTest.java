@@ -35,21 +35,23 @@ class RequestServiceTest {
     }
 
     @Test
-    void createRequest_shouldReturnDraftSummary() {
+    void createRequest_shouldReturnDraftDetail() {
 
         RequestInput input = RequestInput.builder()
                 .title("交通費精算")
                 .description("4月分")
                 .build();
 
-        RequestSummary result = requestService.createRequest(input);
+        RequestDetail result = requestService.createRequest(input);
 
         assertNotNull(result);
         assertNotNull(result.getRequestId());
         assertEquals("交通費精算", result.getTitle());
         assertEquals(RequestStatus.DRAFT, result.getStatus());
+        assertEquals("userId1234", result.getUserId());
         assertEquals("user1", result.getUserName());
         assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getUpdatedAt());
     }
 
     @Test
@@ -78,12 +80,12 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary requestSummary = requestService.createRequest(input1);
-        RequestDetail result = requestService.getRequestById(requestSummary.getRequestId());
+        RequestDetail requestDetail = requestService.createRequest(input1);
+        RequestDetail result = requestService.getRequestById(requestDetail.getRequestId());
 
         assertNotNull(result);
-        assertEquals(requestSummary.getRequestId(), result.getRequestId());
-        assertEquals(requestSummary.getUserName(), result.getUserName());
+        assertEquals(requestDetail.getRequestId(), result.getRequestId());
+        assertEquals(requestDetail.getUserName(), result.getUserName());
         assertEquals("交通費精算", result.getTitle());
         assertEquals("4月分", result.getDescription());
         assertEquals(RequestStatus.DRAFT, result.getStatus());
@@ -100,11 +102,11 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary requestSummary = requestService.createRequest(input1);
-        RequestDetail result = requestService.submitRequest(requestSummary.getRequestId());
+        RequestDetail draftRequest = requestService.createRequest(input1);
+        RequestDetail result = requestService.submitRequest(draftRequest.getRequestId());
 
         assertNotNull(result);
-        assertEquals(requestSummary.getRequestId(), result.getRequestId());
+        assertEquals(draftRequest.getRequestId(), result.getRequestId());
         assertEquals(RequestStatus.SUBMITTED, result.getStatus());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
@@ -118,13 +120,13 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary requestSummary = requestService.createRequest(input1);
-        RequestDetail submitted = requestService.submitRequest(requestSummary.getRequestId());
-        LocalDateTime submittedTime = submitted.getUpdatedAt();
-        RequestDetail result = requestService.approveRequest(submitted.getRequestId());
+        RequestDetail draftRequest = requestService.createRequest(input1);
+        RequestDetail submittedRequest = requestService.submitRequest(draftRequest.getRequestId());
+        LocalDateTime submittedTime = submittedRequest.getUpdatedAt();
+        RequestDetail result = requestService.approveRequest(submittedRequest.getRequestId());
 
         assertNotNull(result);
-        assertEquals(requestSummary.getRequestId(), result.getRequestId());
+        assertEquals(draftRequest.getRequestId(), result.getRequestId());
         assertEquals(RequestStatus.APPROVED, result.getStatus());
         assertNotNull(submittedTime);
         assertNotNull(result.getUpdatedAt());
@@ -138,13 +140,13 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary requestSummary = requestService.createRequest(input1);
-        RequestDetail submitted = requestService.submitRequest(requestSummary.getRequestId());
-        LocalDateTime submittedTime = submitted.getUpdatedAt();
-        RequestDetail result = requestService.rejectRequest(submitted.getRequestId());
+        RequestDetail draftRequest = requestService.createRequest(input1);
+        RequestDetail submittedRequest = requestService.submitRequest(draftRequest.getRequestId());
+        LocalDateTime submittedTime = submittedRequest.getUpdatedAt();
+        RequestDetail result = requestService.rejectRequest(submittedRequest.getRequestId());
 
         assertNotNull(result);
-        assertEquals(requestSummary.getRequestId(), result.getRequestId());
+        assertEquals(draftRequest.getRequestId(), result.getRequestId());
         assertEquals(RequestStatus.REJECTED, result.getStatus());
         assertNotNull(submittedTime);
         assertNotNull(result.getUpdatedAt());
@@ -158,7 +160,7 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail draftRequest = requestService.createRequest(input1);
 
         assertThrows(StatusConflictException.class,
                 () -> requestService.approveRequest(draftRequest.getRequestId()));
@@ -171,7 +173,7 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail draftRequest = requestService.createRequest(input1);
 
         assertThrows(StatusConflictException.class,
                 () -> requestService.rejectRequest(draftRequest.getRequestId()));
@@ -184,7 +186,7 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail draftRequest = requestService.createRequest(input1);
         RequestDetail submittedRequest = requestService.submitRequest(draftRequest.getRequestId());
 
         assertThrows(StatusConflictException.class,
@@ -210,7 +212,7 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail draftRequest = requestService.createRequest(input1);
         requestService.submitRequest(draftRequest.getRequestId());
         assertThrows(NotFoundException.class,
                 () -> requestService.approveRequest("invalid_id"));
@@ -223,7 +225,7 @@ class RequestServiceTest {
                 .description("4月分")
                 .build();
 
-        RequestSummary draftRequest = requestService.createRequest(input1);
+        RequestDetail draftRequest = requestService.createRequest(input1);
         requestService.submitRequest(draftRequest.getRequestId());
         assertThrows(NotFoundException.class,
                 () -> requestService.rejectRequest("invalid_id"));

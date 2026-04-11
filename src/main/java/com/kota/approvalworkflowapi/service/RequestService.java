@@ -28,7 +28,7 @@ public class RequestService {
         this.requestRepository = requestRepository;
     }
 
-    public RequestSummary createRequest(RequestInput input) {
+    public RequestDetail createRequest(RequestInput input) {
         String requestId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
         RequestEntity savedEntity = requestRepository.saveRequest(
@@ -41,13 +41,7 @@ public class RequestService {
                         .createdAt(now)
                         .updatedAt(now)
                         .build());
-        return RequestSummary.builder()
-                .requestId(savedEntity.getRequestId())
-                .userName(USER_NAME)
-                .status(savedEntity.getStatus())
-                .title(savedEntity.getTitle())
-                .createdAt(savedEntity.getCreatedAt())
-                .build();
+        return toRequestDetail(savedEntity);
     }
 
     public List<RequestSummary> getRequests() {

@@ -4,7 +4,6 @@ import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.dto.request.CreateRequestRequest;
-import com.kota.approvalworkflowapi.dto.response.CreateRequestResponse;
 import com.kota.approvalworkflowapi.dto.response.RequestDetailResponse;
 import com.kota.approvalworkflowapi.dto.response.RequestSummaryResponse;
 import com.kota.approvalworkflowapi.service.RequestService;
@@ -23,19 +22,13 @@ public class RequestController {
     }
 
     @PostMapping
-    public CreateRequestResponse createRequest(@RequestBody CreateRequestRequest req) {
+    public RequestDetailResponse createRequest(@RequestBody CreateRequestRequest req) {
         RequestInput input = RequestInput.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .build();
-        RequestSummary savedRequest = requestService.createRequest(input);
-        return CreateRequestResponse.builder()
-                .requestId(savedRequest.getRequestId())
-                .userName(savedRequest.getUserName())
-                .status(savedRequest.getStatus())
-                .title(savedRequest.getTitle())
-                .createdAt(savedRequest.getCreatedAt())
-                .build();
+        RequestDetail savedRequest = requestService.createRequest(input);
+        return RequestDetailResponse.from(savedRequest);
     }
 
     @GetMapping
