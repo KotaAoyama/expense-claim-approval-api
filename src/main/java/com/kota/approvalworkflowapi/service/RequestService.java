@@ -1,8 +1,8 @@
 package com.kota.approvalworkflowapi.service;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
-import com.kota.approvalworkflowapi.common.exception.NotFoundException;
-import com.kota.approvalworkflowapi.common.exception.StatusConflictException;
+import com.kota.approvalworkflowapi.exception.NotFoundException;
+import com.kota.approvalworkflowapi.exception.StatusConflictException;
 import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
