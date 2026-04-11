@@ -87,6 +87,7 @@ class RequestServiceTest {
         assertEquals("交通費精算", result.getTitle());
         assertEquals("4月分", result.getDescription());
         assertEquals(RequestStatus.DRAFT, result.getStatus());
+        assertEquals("userId1234", result.getUserId());
         assertEquals("user1", result.getUserName());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());

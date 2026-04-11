@@ -1,12 +1,12 @@
 package com.kota.approvalworkflowapi.service;
 
 import com.kota.approvalworkflowapi.common.RequestStatus;
-import com.kota.approvalworkflowapi.exception.NotFoundException;
-import com.kota.approvalworkflowapi.exception.StatusConflictException;
 import com.kota.approvalworkflowapi.dto.RequestDetail;
 import com.kota.approvalworkflowapi.dto.RequestInput;
 import com.kota.approvalworkflowapi.dto.RequestSummary;
 import com.kota.approvalworkflowapi.entity.RequestEntity;
+import com.kota.approvalworkflowapi.exception.NotFoundException;
+import com.kota.approvalworkflowapi.exception.StatusConflictException;
 import com.kota.approvalworkflowapi.repository.RequestRepository;
 import org.springframework.stereotype.Service;
 
@@ -64,16 +64,7 @@ public class RequestService {
 
     public RequestDetail getRequestById(String requestId) {
         RequestEntity requestEntity = requestRepository.getRequestById(requestId);
-        return RequestDetail.builder()
-                .requestId(requestEntity.getRequestId())
-                .userId(USER_ID)
-                .userName(USER_NAME)
-                .status(requestEntity.getStatus())
-                .title(requestEntity.getTitle())
-                .description(requestEntity.getDescription())
-                .createdAt(requestEntity.getCreatedAt())
-                .updatedAt(requestEntity.getUpdatedAt())
-                .build();
+        return RequestDetail.from(requestEntity, USER_NAME);
     }
 
     public RequestDetail submitRequest(String requestId) {
@@ -84,24 +75,32 @@ public class RequestService {
         } catch (NoSuchElementException e) {
             throw new NotFoundException("No request is found");
         }
-        if (!requestEntity.getStatus().isSubmittable()) {
-            throw new StatusConflictException("Only DRAFT requests are submittable");
+        if (!requestEntity.getStatus().canSubmit()) {
+            throw new StatusConflictException("Only DRAFT requests can be submitted");
         }
 
         requestEntity.changeStatus(RequestStatus.SUBMITTED);
 
         RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
 
-        return RequestDetail.builder()
-                .requestId(updatedEntity.getRequestId())
-                .userId(updatedEntity.getUserId())
-                .userName(USER_NAME) // TODO: users テーブルを作ったら修正
-                .status(updatedEntity.getStatus())
-                .title(updatedEntity.getTitle())
-                .description(updatedEntity.getDescription())
-                .createdAt(updatedEntity.getCreatedAt())
-                .updatedAt(updatedEntity.getUpdatedAt())
-                .build();
+        return RequestDetail.from(updatedEntity, USER_NAME);
     }
 
+    public RequestDetail approveRequest(String requestId) {
+        RequestEntity requestEntity;
+        try {
+            requestEntity = requestRepository.getRequestById(requestId);
+        } catch (NoSuchElementException e) {
+            throw new NotFoundException("No request is found");
+        }
+        if (!requestEntity.getStatus().canApprove()) {
+            throw new StatusConflictException("Only SUBMITTED requests can be approved");
+        }
+
+        requestEntity.changeStatus(RequestStatus.APPROVED);
+
+        RequestEntity updatedEntity = requestRepository.saveRequest(requestEntity);
+
+        return RequestDetail.from(updatedEntity, USER_NAME);
+    }
 }
