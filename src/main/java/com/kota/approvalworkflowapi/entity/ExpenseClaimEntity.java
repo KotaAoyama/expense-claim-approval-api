@@ -1,6 +1,6 @@
 package com.kota.approvalworkflowapi.entity;
 
-import com.kota.approvalworkflowapi.common.RequestStatus;
+import com.kota.approvalworkflowapi.common.ExpenseClaimStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,26 +11,28 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "requests")
-public class RequestEntity {
+@Table(name = "expense_claims")
+public class ExpenseClaimEntity {
 
     @Id
-    private String requestId;
+    private String expenseClaimId;
 
     private String userId;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatus status;
+    private ExpenseClaimStatus status;
 
     private String title;
 
     private String description;
 
+    private int amount;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    public void changeStatus(RequestStatus status) {
+    public void changeStatus(ExpenseClaimStatus status) {
         this.status = status;
         this.updatedAt = LocalDateTime.now();
     }

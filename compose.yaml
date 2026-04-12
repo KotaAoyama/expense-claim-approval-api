@@ -1,9 +1,9 @@
 services:
   postgres:
     image: postgres:16
-    container_name: approval-workflow-postgres
+    container_name: expense-claim-approval-postgres
     environment:
-      POSTGRES_DB: approval_workflow
+      POSTGRES_DB: expense_claim_approval
       POSTGRES_USER: app_user
       POSTGRES_PASSWORD: app_pass
     ports:

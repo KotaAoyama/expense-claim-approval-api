@@ -1,6 +1,6 @@
 package com.kota.approvalworkflowapi.common;
 
-public enum RequestStatus {
+public enum ExpenseClaimStatus {
     DRAFT, SUBMITTED, APPROVED, REJECTED;
 
     public boolean canSubmit() {

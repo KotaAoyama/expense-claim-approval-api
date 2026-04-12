@@ -1,6 +1,6 @@
 package com.kota.approvalworkflowapi.dto;
 
-import com.kota.approvalworkflowapi.common.RequestStatus;
+import com.kota.approvalworkflowapi.common.ExpenseClaimStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,10 +8,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class RequestSummary {
-    private String requestId;
+public class ExpenseClaimSummary {
+    private String expenseClaimId;
     private String userName;
-    private RequestStatus status;
+    private ExpenseClaimStatus status;
     private String title;
+    private int amount;
     private LocalDateTime createdAt;
 }

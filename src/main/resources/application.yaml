@@ -1,9 +1,9 @@
 spring:
   application:
-    name: approval-workflow-api
+    name: expense-claim-approval-api
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/approval_workflow
+    url: jdbc:postgresql://localhost:5432/expense_claim_approval
     username: app_user
     password: app_pass
     driver-class-name: org.postgresql.Driver
