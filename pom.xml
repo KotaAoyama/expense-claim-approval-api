@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.kota</groupId>
-	<artifactId>approval-workflow-api</artifactId>
+	<artifactId>expense-claim-approval-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
