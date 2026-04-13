@@ -4,6 +4,7 @@ import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimDetail;
 import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimInput;
 import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimSummary;
 import com.kota.expenseclaimapprovalapi.dto.request.CreateExpenseClaimRequest;
+import com.kota.expenseclaimapprovalapi.dto.request.DecideExpenseClaimRequest;
 import com.kota.expenseclaimapprovalapi.dto.response.ExpenseClaimDetailResponse;
 import com.kota.expenseclaimapprovalapi.dto.response.ExpenseClaimSummaryResponse;
 import com.kota.expenseclaimapprovalapi.service.ExpenseClaimService;
@@ -57,14 +58,18 @@ public class ExpenseClaimController {
     }
 
     @PostMapping("/{expenseClaimId}/approve")
-    public ExpenseClaimDetailResponse approveExpenseClaim(@PathVariable String expenseClaimId) {
-        ExpenseClaimDetail expenseClaimDetail = expenseClaimService.approveExpenseClaim(expenseClaimId);
+    public ExpenseClaimDetailResponse approveExpenseClaim(@PathVariable String expenseClaimId,
+                                                          @RequestBody DecideExpenseClaimRequest req) {
+        ExpenseClaimDetail expenseClaimDetail =
+                expenseClaimService.approveExpenseClaim(expenseClaimId, req.getReviewerComment());
         return ExpenseClaimDetailResponse.from(expenseClaimDetail);
     }
 
     @PostMapping("/{expenseClaimId}/reject")
-    public ExpenseClaimDetailResponse rejectExpenseClaim(@PathVariable String expenseClaimId) {
-        ExpenseClaimDetail expenseClaimDetail = expenseClaimService.rejectExpenseClaim(expenseClaimId);
+    public ExpenseClaimDetailResponse rejectExpenseClaim(@PathVariable String expenseClaimId,
+                                                         @RequestBody DecideExpenseClaimRequest req) {
+        ExpenseClaimDetail expenseClaimDetail =
+                expenseClaimService.rejectExpenseClaim(expenseClaimId, req.getReviewerComment());
         return ExpenseClaimDetailResponse.from(expenseClaimDetail);
     }
 }

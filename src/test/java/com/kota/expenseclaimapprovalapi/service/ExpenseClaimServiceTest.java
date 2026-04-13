@@ -52,6 +52,7 @@ class ExpenseClaimServiceTest {
         assertEquals(ExpenseClaimStatus.DRAFT, result.getStatus());
         assertEquals("userId1234", result.getUserId());
         assertEquals("user1", result.getUserName());
+        assertNull(result.getReviewerComment());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
     }
@@ -127,15 +128,18 @@ class ExpenseClaimServiceTest {
                 .description("4月分")
                 .amount(5000)
                 .build();
+        String reviewerComment = "OK!";
 
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
         ExpenseClaimDetail submittedExpenseClaim = expenseClaimService.submitExpenseClaim(draftExpenseClaim.getExpenseClaimId());
         LocalDateTime submittedTime = submittedExpenseClaim.getUpdatedAt();
-        ExpenseClaimDetail result = expenseClaimService.approveExpenseClaim(submittedExpenseClaim.getExpenseClaimId());
+        ExpenseClaimDetail result = expenseClaimService
+                .approveExpenseClaim(submittedExpenseClaim.getExpenseClaimId(), reviewerComment);
 
         assertNotNull(result);
         assertEquals(draftExpenseClaim.getExpenseClaimId(), result.getExpenseClaimId());
         assertEquals(ExpenseClaimStatus.APPROVED, result.getStatus());
+        assertEquals("OK!", result.getReviewerComment());
         assertNotNull(submittedTime);
         assertNotNull(result.getUpdatedAt());
         assertNotEquals(submittedTime, result.getUpdatedAt());
@@ -148,15 +152,18 @@ class ExpenseClaimServiceTest {
                 .description("4月分")
                 .amount(5000)
                 .build();
+        String reviewerComment = "NG!";
 
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
         ExpenseClaimDetail submittedExpenseClaim = expenseClaimService.submitExpenseClaim(draftExpenseClaim.getExpenseClaimId());
         LocalDateTime submittedTime = submittedExpenseClaim.getUpdatedAt();
-        ExpenseClaimDetail result = expenseClaimService.rejectExpenseClaim(submittedExpenseClaim.getExpenseClaimId());
+        ExpenseClaimDetail result = expenseClaimService
+                .rejectExpenseClaim(submittedExpenseClaim.getExpenseClaimId(), reviewerComment);
 
         assertNotNull(result);
         assertEquals(draftExpenseClaim.getExpenseClaimId(), result.getExpenseClaimId());
         assertEquals(ExpenseClaimStatus.REJECTED, result.getStatus());
+        assertEquals("NG!", result.getReviewerComment());
         assertNotNull(submittedTime);
         assertNotNull(result.getUpdatedAt());
         assertNotEquals(submittedTime, result.getUpdatedAt());
@@ -173,7 +180,7 @@ class ExpenseClaimServiceTest {
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
 
         assertThrows(StatusConflictException.class,
-                () -> expenseClaimService.approveExpenseClaim(draftExpenseClaim.getExpenseClaimId()));
+                () -> expenseClaimService.approveExpenseClaim(draftExpenseClaim.getExpenseClaimId(), "OK!"));
     }
 
     @Test
@@ -187,7 +194,7 @@ class ExpenseClaimServiceTest {
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
 
         assertThrows(StatusConflictException.class,
-                () -> expenseClaimService.rejectExpenseClaim(draftExpenseClaim.getExpenseClaimId()));
+                () -> expenseClaimService.rejectExpenseClaim(draftExpenseClaim.getExpenseClaimId(), "NG!"));
     }
 
     @Test
@@ -229,7 +236,7 @@ class ExpenseClaimServiceTest {
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
         expenseClaimService.submitExpenseClaim(draftExpenseClaim.getExpenseClaimId());
         assertThrows(NotFoundException.class,
-                () -> expenseClaimService.approveExpenseClaim("invalid_id"));
+                () -> expenseClaimService.approveExpenseClaim("invalid_id", "OK!"));
     }
 
     @Test
@@ -242,6 +249,6 @@ class ExpenseClaimServiceTest {
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);
         expenseClaimService.submitExpenseClaim(draftExpenseClaim.getExpenseClaimId());
         assertThrows(NotFoundException.class,
-                () -> expenseClaimService.rejectExpenseClaim("invalid_id"));
+                () -> expenseClaimService.rejectExpenseClaim("invalid_id", "NG!"));
     }
 }

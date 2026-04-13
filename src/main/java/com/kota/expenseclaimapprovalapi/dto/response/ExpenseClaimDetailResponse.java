@@ -17,6 +17,7 @@ public class ExpenseClaimDetailResponse {
     private String title;
     private String description;
     private int amount;
+    private String reviewerComment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -29,6 +30,7 @@ public class ExpenseClaimDetailResponse {
                 .title(expenseClaimDetail.getTitle())
                 .description(expenseClaimDetail.getDescription())
                 .amount(expenseClaimDetail.getAmount())
+                .reviewerComment(expenseClaimDetail.getReviewerComment())
                 .createdAt(expenseClaimDetail.getCreatedAt())
                 .updatedAt(expenseClaimDetail.getUpdatedAt())
                 .build();

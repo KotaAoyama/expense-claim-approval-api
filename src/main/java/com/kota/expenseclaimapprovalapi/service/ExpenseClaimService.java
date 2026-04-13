@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -73,22 +74,24 @@ public class ExpenseClaimService {
         return toExpenseClaimDetail(updatedEntity);
     }
 
-    public ExpenseClaimDetail approveExpenseClaim(String expenseClaimId) {
+    public ExpenseClaimDetail approveExpenseClaim(String expenseClaimId, String reviewerComment) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canApprove()) {
             throw new StatusConflictException("Only SUBMITTED expense claims can be approved");
         }
         expenseClaimEntity.changeStatus(ExpenseClaimStatus.APPROVED);
+        if (Objects.nonNull(reviewerComment)) expenseClaimEntity.addReviewerComment(reviewerComment);
         ExpenseClaimEntity updatedEntity = expenseClaimRepository.saveExpenseClaim(expenseClaimEntity);
         return toExpenseClaimDetail(updatedEntity);
     }
 
-    public ExpenseClaimDetail rejectExpenseClaim(String expenseClaimId) {
+    public ExpenseClaimDetail rejectExpenseClaim(String expenseClaimId, String reviewerComment) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canReject()) {
             throw new StatusConflictException("Only SUBMITTED expense claims can be rejected");
         }
         expenseClaimEntity.changeStatus(ExpenseClaimStatus.REJECTED);
+        if (Objects.nonNull(reviewerComment)) expenseClaimEntity.addReviewerComment(reviewerComment);
         ExpenseClaimEntity updatedEntity = expenseClaimRepository.saveExpenseClaim(expenseClaimEntity);
         return toExpenseClaimDetail(updatedEntity);
     }
@@ -110,6 +113,7 @@ public class ExpenseClaimService {
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .amount(entity.getAmount())
+                .reviewerComment(entity.getReviewerComment())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

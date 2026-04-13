@@ -28,12 +28,19 @@ public class ExpenseClaimEntity {
 
     private int amount;
 
+    private String reviewerComment;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
     public void changeStatus(ExpenseClaimStatus status) {
         this.status = status;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void addReviewerComment(String reviewerComment) {
+        this.reviewerComment = reviewerComment;
         this.updatedAt = LocalDateTime.now();
     }
 }

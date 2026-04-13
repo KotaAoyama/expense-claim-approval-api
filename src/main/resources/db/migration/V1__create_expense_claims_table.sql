@@ -5,6 +5,7 @@ CREATE TABLE expense_claims (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     amount INTEGER,
+    reviewer_comment VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );

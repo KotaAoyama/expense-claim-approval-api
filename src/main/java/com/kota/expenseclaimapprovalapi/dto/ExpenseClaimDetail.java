@@ -16,6 +16,7 @@ public class ExpenseClaimDetail {
     private String title;
     private String description;
     private int amount;
+    private String reviewerComment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
