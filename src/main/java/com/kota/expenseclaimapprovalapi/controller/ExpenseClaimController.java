@@ -5,9 +5,11 @@ import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimInput;
 import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimSummary;
 import com.kota.expenseclaimapprovalapi.dto.request.CreateExpenseClaimRequest;
 import com.kota.expenseclaimapprovalapi.dto.request.DecideExpenseClaimRequest;
+import com.kota.expenseclaimapprovalapi.dto.request.EditExpenseClaimRequest;
 import com.kota.expenseclaimapprovalapi.dto.response.ExpenseClaimDetailResponse;
 import com.kota.expenseclaimapprovalapi.dto.response.ExpenseClaimSummaryResponse;
 import com.kota.expenseclaimapprovalapi.service.ExpenseClaimService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class ExpenseClaimController {
     }
 
     @PostMapping
-    public ExpenseClaimDetailResponse createExpenseClaim(@RequestBody CreateExpenseClaimRequest req) {
+    public ExpenseClaimDetailResponse createExpenseClaim(@RequestBody @Valid CreateExpenseClaimRequest req) {
         ExpenseClaimInput input = ExpenseClaimInput.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
@@ -49,6 +51,18 @@ public class ExpenseClaimController {
     public ExpenseClaimDetailResponse getExpenseClaimById(@PathVariable String expenseClaimId) {
         ExpenseClaimDetail expenseClaimDetail = expenseClaimService.getExpenseClaimById(expenseClaimId);
         return ExpenseClaimDetailResponse.from(expenseClaimDetail);
+    }
+
+    @PatchMapping("{expenseClaimId}")
+    public ExpenseClaimDetailResponse editExpenseClaimById(@PathVariable String expenseClaimId,
+                                                           @RequestBody @Valid EditExpenseClaimRequest req) {
+        ExpenseClaimInput input = ExpenseClaimInput.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .amount(req.getAmount())
+                .build();
+        ExpenseClaimDetail savedExpenseClaim = expenseClaimService.editExpenseClaim(expenseClaimId, input);
+        return ExpenseClaimDetailResponse.from(savedExpenseClaim);
     }
 
     @PostMapping("/{expenseClaimId}/submit")

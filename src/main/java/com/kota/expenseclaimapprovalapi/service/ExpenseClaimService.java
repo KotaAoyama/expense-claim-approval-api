@@ -7,6 +7,7 @@ import com.kota.expenseclaimapprovalapi.dto.ExpenseClaimSummary;
 import com.kota.expenseclaimapprovalapi.entity.ExpenseClaimEntity;
 import com.kota.expenseclaimapprovalapi.exception.NotFoundException;
 import com.kota.expenseclaimapprovalapi.exception.StatusConflictException;
+import com.kota.expenseclaimapprovalapi.exception.ValidationException;
 import com.kota.expenseclaimapprovalapi.repository.ExpenseClaimRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,9 @@ public class ExpenseClaimService {
     }
 
     public ExpenseClaimDetail createExpenseClaim(ExpenseClaimInput input) {
+        if (input.getTitle() == null || input.getTitle().isBlank()) {
+            throw new ValidationException("title must have value");
+        }
         String expenseClaimId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
         ExpenseClaimEntity savedEntity = expenseClaimRepository.saveExpenseClaim(
@@ -69,6 +73,9 @@ public class ExpenseClaimService {
         if (!expenseClaimEntity.getStatus().canSubmit()) {
             throw new StatusConflictException("Only DRAFT expense claims can be submitted");
         }
+        if (!expenseClaimEntity.validateWhenSubmit()) {
+            throw new ValidationException("title and amount must have value when the expense claim is submitted");
+        }
         expenseClaimEntity.changeStatus(ExpenseClaimStatus.SUBMITTED);
         ExpenseClaimEntity updatedEntity = expenseClaimRepository.saveExpenseClaim(expenseClaimEntity);
         return toExpenseClaimDetail(updatedEntity);
@@ -92,6 +99,19 @@ public class ExpenseClaimService {
         }
         expenseClaimEntity.changeStatus(ExpenseClaimStatus.REJECTED);
         if (Objects.nonNull(reviewerComment)) expenseClaimEntity.addReviewerComment(reviewerComment);
+        ExpenseClaimEntity updatedEntity = expenseClaimRepository.saveExpenseClaim(expenseClaimEntity);
+        return toExpenseClaimDetail(updatedEntity);
+    }
+
+    public ExpenseClaimDetail editExpenseClaim(String expenseClaimId, ExpenseClaimInput input) {
+        ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
+        if (!expenseClaimEntity.getStatus().canEdit()) {
+            throw new StatusConflictException("Only DRAFT expense claims can be edited");
+        }
+        if (input.getTitle() != null && input.getTitle().isBlank()) {
+            throw new ValidationException("title must have value");
+        }
+        expenseClaimEntity.edit(input);
         ExpenseClaimEntity updatedEntity = expenseClaimRepository.saveExpenseClaim(expenseClaimEntity);
         return toExpenseClaimDetail(updatedEntity);
     }

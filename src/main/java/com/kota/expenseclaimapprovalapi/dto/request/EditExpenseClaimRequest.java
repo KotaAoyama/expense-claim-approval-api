@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Builder
-public class CreateExpenseClaimRequest {
+public class EditExpenseClaimRequest {
 
     @Length(max = 255, message = "Max length of title is 255")
     private String title;

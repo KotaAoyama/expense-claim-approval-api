@@ -13,6 +13,6 @@ public class ExpenseClaimSummary {
     private String userName;
     private ExpenseClaimStatus status;
     private String title;
-    private int amount;
+    private Integer amount;
     private LocalDateTime createdAt;
 }

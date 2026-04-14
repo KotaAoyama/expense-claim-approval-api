@@ -170,6 +170,35 @@ class ExpenseClaimServiceTest {
     }
 
     @Test
+    public void editExpenseClaim_should_return_detail() {
+        ExpenseClaimInput input = ExpenseClaimInput.builder()
+                .title("交通費精算")
+                .description("4月分")
+                .amount(5000)
+                .build();
+        ExpenseClaimInput newInput = ExpenseClaimInput.builder()
+                .description("5月分")
+                .amount(1000)
+                .build();
+
+        ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input);
+        ExpenseClaimDetail result = expenseClaimService.editExpenseClaim(draftExpenseClaim.getExpenseClaimId(), newInput);
+
+        assertNotNull(result);
+        assertEquals(draftExpenseClaim.getExpenseClaimId(), result.getExpenseClaimId());
+        assertEquals("交通費精算", draftExpenseClaim.getTitle());
+        assertEquals("4月分", draftExpenseClaim.getDescription());
+        assertEquals(5000, draftExpenseClaim.getAmount());
+        assertEquals("交通費精算", result.getTitle());
+        assertEquals("5月分", result.getDescription());
+        assertEquals(1000, result.getAmount());
+        assertEquals(ExpenseClaimStatus.DRAFT, result.getStatus());
+        assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getUpdatedAt());
+        assertNotEquals(result.getCreatedAt(), result.getUpdatedAt());
+    }
+
+    @Test
     void approveExpenseClaim_should_throw_StatusConflictException_when_status_is_DRAFT() {
         ExpenseClaimInput input1 = ExpenseClaimInput.builder()
                 .title("交通費精算")
@@ -244,6 +273,7 @@ class ExpenseClaimServiceTest {
         ExpenseClaimInput input1 = ExpenseClaimInput.builder()
                 .title("交通費精算")
                 .description("4月分")
+                .amount(5000)
                 .build();
 
         ExpenseClaimDetail draftExpenseClaim = expenseClaimService.createExpenseClaim(input1);

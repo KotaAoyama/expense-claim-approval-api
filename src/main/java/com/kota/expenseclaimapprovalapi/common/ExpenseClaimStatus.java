@@ -14,4 +14,8 @@ public enum ExpenseClaimStatus {
     public boolean canReject() {
         return this == SUBMITTED;
     }
+
+    public boolean canEdit() {
+        return this == DRAFT;
+    }
 }

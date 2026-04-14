@@ -16,7 +16,7 @@ public class ExpenseClaimDetailResponse {
     private ExpenseClaimStatus status;
     private String title;
     private String description;
-    private int amount;
+    private Integer amount;
     private String reviewerComment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -8,5 +8,5 @@ import lombok.Getter;
 public class ExpenseClaimInput {
     private String title;
     private String description;
-    private int amount;
+    private Integer amount;
 }
