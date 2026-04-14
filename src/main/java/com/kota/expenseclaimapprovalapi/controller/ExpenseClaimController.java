@@ -43,6 +43,7 @@ public class ExpenseClaimController {
                 .userName(expenseClaimSummary.getUserName())
                 .status(expenseClaimSummary.getStatus())
                 .title(expenseClaimSummary.getTitle())
+                .amount(expenseClaimSummary.getAmount())
                 .createdAt(expenseClaimSummary.getCreatedAt())
                 .build()).toList();
     }
