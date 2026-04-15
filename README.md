@@ -107,3 +107,11 @@ The service layer is covered with tests for:
 ```bash
 docker compose up -d
 ./mvnw spring-boot:run
+```
+
+---
+
+## API Documentation
+
+Swagger UI is available at:
+`http://localhost:8080/swagger-ui.html`
