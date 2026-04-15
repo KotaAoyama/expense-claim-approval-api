@@ -64,6 +64,7 @@ public class ExpenseClaimEntity {
     }
 
     public boolean validateWhenSubmit() {
+        // title は create 時点でバリデーションされるため、通常フローでは submit 時点で欠落しない想定
         if (this.title == null || this.title.isBlank()) return false;
         if (this.amount == null) return false;
         return true;
