@@ -1,117 +1,171 @@
-# Expense Claim Approval API
+# 経費申請・承認API（Expense Claim Approval API）
+## 概要
 
-## Overview
-This is a Spring Boot based REST API for expense claim workflow management.
+本アプリケーションは、Spring Boot を用いた経費申請ワークフロー管理のためのREST APIです。
 
-The application focuses on workflow consistency and business rules rather than simple CRUD operations.
-It supports creating, editing, submitting, approving, and rejecting expense claims with explicit state transitions.
+単純なデータ更新（CRUD）ではなく、業務システムにおける「状態遷移」と「ビジネスルールの一貫性」を重視した設計としています。
 
----
-
-## Scope
-This application focuses on expense claim workflow and business rules.
-
-Authentication and authorization are intentionally out of scope for this version.  
-The current implementation uses a fixed dummy user and prioritizes:
-
-- state transitions
-- validation
-- workflow consistency
-- exception handling
-
-Therefore, all endpoints are currently accessible without authentication.
-
-As a future improvement, authentication/authorization can be added with Spring Security.
+申請の作成・編集・申請・承認・却下といった一連のワークフローを、状態に応じた操作として明示的に表現しています。
 
 ---
+## 設計方針
+### 状態遷移モデルを採用した理由
 
-## Features
-- Create an expense claim
-- List expense claims
-- Get expense claim detail
-- Edit a draft expense claim
-- Submit a draft expense claim
-- Approve a submitted expense claim
-- Reject a submitted expense claim
+本アプリケーションでは、経費申請を単なるデータ更新としてではなく、「状態に応じて許可される操作が変わるワークフロー」として捉えています。
+
+そのため、CRUDを中心に設計するのではなく、
+
+- submit（申請）
+- approve（承認）
+- reject（却下）
+
+といった業務上の操作を明示した状態遷移モデルを採用しています。
+
+これにより、
+
+- APIの責務と業務操作の対応関係が明確になる
+- 状態ごとの制約を一貫して扱える
+- ワークフローの整合性を保ちやすくなる
+
+という利点があります。
+
+### 責務分担
+
+#### 各レイヤの責務の考え方
+- Controller
+  - リクエスト/レスポンスの入出力を担当し、HTTPインターフェースに関する処理に限定しています。
+- Service 
+  - ユースケースの実行を担当し、処理の流れを制御します。 状態遷移の呼び出しや、各コンポーネントの調整を行います。 
+- Status（Enum） 
+  - 状態ごとに許可される操作（submit / approve / reject など）の判定を担当します。 
+  - 状態遷移に関するルールはここに集約しています。
+- Entity 
+  - ドメインデータを表現し、整合性を守るための最低限の防御的チェックを持ちます。
+- Repository 
+  - 永続化処理の抽象化を担当します。 
+  - Service はデータアクセスの実装詳細に依存せず、Repository を通してデータを扱います。
+
+#### Repository設計の方針
+
+Repositoryは、業務ロジックから見た永続化の窓口として設計しています。
+
+Serviceは業務側のExpenseClaimRepositoryインタフェースに依存し、保存や取得の具体的な方法には依存しない構成としています。
+
+実装としては、開発初期にはInMemory Repositoryを利用し、その後JPAを用いた実装に差し替えました。  
+このときもService側のコードを大きく変更せずに移行できるよう、業務側のRepositoryインターフェースと永続化の実装を分離しています。
+また、Spring Data JPAのRepositoryは業務コードから直接利用せず、JPA実装クラスの内部で利用する形としています。
+
+このように、業務ロジックと永続化技術の依存関係を分離することで、実装の差し替えやテストをしやすい構成を意識しています。
+
+#### 例外処理とHTTPレスポンスの責務
+
+HTTPステータスコードの決定はService層では行わず、GlobalExceptionHandlerに集約しています。
+
+Service層はHTTPに依存しない形で例外を投げ、HTTPレスポンスへの変換はController層（例外ハンドラ）で行う構成としています。
+
+これにより、
+- Service層をHTTPプロトコルから独立させる
+- ビジネスロジックとプレゼンテーション層の関心を分離する
+- 例外処理の一貫性を担保する
+
+ことを意識しています。
+
+### なぜPATCHを採用したか
+
+下書き（DRAFT）状態における編集は、全項目の更新ではなく一部項目の修正が中心となるため、部分更新を表現できるPATCHを採用しています。
+
+### 認証・認可を後回しにしている理由
+
+本来、業務システムにおいて認証・認可は重要な要素ですが、本プロジェクトでは「ワークフロー設計」と「ビジネスルールの実装」に焦点を当てるため、優先順位を下げています。
+
+現在はダミーユーザーを使用していますが、将来的にはSpring Security等による認証・認可の導入を想定しています。
 
 ---
+## 機能一覧
 
-## Workflow Rules
-- A claim is created with `DRAFT` status
-- A claim can be edited only when its status is `DRAFT`
-- A claim can be submitted only when its status is `DRAFT`
-- Once submitted, the claim is locked from editing
-- A claim can be approved or rejected only when its status is `SUBMITTED`
-- `reviewerComment` is handled only during approve/reject operations
-
----
-
-## Status Transition
-
-| Current Status | Operation | Next Status |
-|---|---|---|
-| DRAFT | submit | SUBMITTED |
-| SUBMITTED | approve | APPROVED |
-| SUBMITTED | reject | REJECTED |
-
-Edit is allowed only in `DRAFT`.
+- 経費申請の作成
+- 経費申請一覧取得
+- 経費申請詳細取得
+- 下書きの編集
+- 申請（submit）
+- 承認（approve）
+- 却下（reject）
 
 ---
+## 状態遷移図
+```mermaid
+%%{init: {'theme':'default'}}%%
+stateDiagram-v2
+    [*] --> DRAFT : create
+    DRAFT --> SUBMITTED : submit
+    SUBMITTED --> APPROVED : approve
+    SUBMITTED --> REJECTED : reject
 
-## Validation Policy
-Validation is handled mainly in the service layer.
+    note right of DRAFT
+        Editable only in DRAFT state
+    end note
+```
+---
+## ワークフロールール
 
-- Input validation is performed when creating or editing an expense claim
-- Additional validation is performed on submit to ensure required fields are present before state transition
-- Some checks are also kept defensively in the entity to preserve workflow consistency
-
-For example, `title` is validated during creation, so it is not expected to be missing during normal submit flow.  
-However, submit still performs defensive validation to protect workflow integrity.
+- 申請はDRAFT状態で作成される
+- DRAFT状態のみ編集可能
+- DRAFT状態のみ申請可能
+- 申請後は編集不可（ロック）
+- SUBMITTED状態のみ承認・却下可能
+- reviewerCommentは承認・却下時のみ扱う
 
 ---
+## API一覧
 
-## API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| POST | `/expense-claims` | Create a new expense claim |
-| GET | `/expense-claims` | Get expense claim list |
-| GET | `/expense-claims/{id}` | Get expense claim detail |
-| PATCH | `/expense-claims/{id}` | Edit a draft expense claim |
-| POST | `/expense-claims/{id}/submit` | Submit a draft expense claim |
-| POST | `/expense-claims/{id}/approve` | Approve a submitted expense claim |
-| POST | `/expense-claims/{id}/reject` | Reject a submitted expense claim |
+| Method | Path                         | 説明    |
+| ------ | ---------------------------- | ----- |
+| POST   | /expense-claims              | 申請作成  |
+| GET    | /expense-claims              | 一覧取得  |
+| GET    | /expense-claims/{id}         | 詳細取得  |
+| PATCH  | /expense-claims/{id}         | 下書き編集 |
+| POST   | /expense-claims/{id}/submit  | 申請    |
+| POST   | /expense-claims/{id}/approve | 承認    |
+| POST   | /expense-claims/{id}/reject  | 却下    |
 
 ---
-
-## Tech Stack
+## 技術スタック
 - Java
 - Spring Boot
 - PostgreSQL
-
 ---
 
-## Testing
-The service layer is covered with tests for:
+## テスト
 
-- normal workflow transitions
-- invalid state transitions
-- validation failures
-- not found cases
-- partial update behavior
+Service層に対して以下のテストを実施しています：
+
+- 正常な状態遷移
+- 不正な状態遷移
+- バリデーションエラー
+- Not Foundケース
+- 部分更新（PATCH）の挙動
 
 ---
-
-## How to Run
-
-```bash
+## 起動方法
+```
 docker compose up -d
 ./mvnw spring-boot:run
 ```
 
 ---
+## APIドキュメント
 
-## API Documentation
+Swagger UI：`http://localhost:8080/swagger-ui.html`
 
-Swagger UI is available at:
-`http://localhost:8080/swagger-ui.html`
+---
+## English Summary
+
+This is a Spring Boot based REST API for expense claim workflow management.
+
+The application focuses on:
+
+- state transitions
+- workflow consistency
+- business rule validation
+
+Authentication and authorization are intentionally out of scope for this version.
