@@ -153,16 +153,16 @@ Service層に対して以下のテストを実施しています：
 * Docker Desktop が起動していること
 * Java 21 が利用できること
 
-### 1. PostgreSQL を起動
+### 1. ビルド
 
 ```bash
-docker-compose up -d
+./mvnw clean package -DskipTests
 ```
 
-### 2. アプリケーションを起動
+### 2. 起動
 
 ```bash
-./mvnw spring-boot:run
+docker-compose up -d --build
 ```
 
 ### 3. アクセス
