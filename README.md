@@ -147,15 +147,48 @@ Service層に対して以下のテストを実施しています：
 
 ---
 ## 起動方法
+
+### 前提
+
+* Docker Desktop が起動していること
+* Java 21 が利用できること
+
+### 1. PostgreSQL を起動
+
+```bash
+docker-compose up -d
 ```
-docker compose up -d
+
+### 2. アプリケーションを起動
+
+```bash
 ./mvnw spring-boot:run
 ```
+
+### 3. アクセス
+
+* Swagger UI  
+  [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+### 4. 停止
+
+```bash
+docker-compose down
+```
+
+データも削除する場合：
+
+```bash
+docker-compose down -v
+```
+
 
 ---
 ## APIドキュメント
 
-Swagger UI：`http://localhost:8080/swagger-ui.html`
+Swagger UI からAPIの仕様確認およびリクエスト実行が可能です。
+
+http://localhost:8080/swagger-ui.html
 
 ---
 ## English Summary
