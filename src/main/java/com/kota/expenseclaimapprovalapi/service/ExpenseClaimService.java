@@ -10,6 +10,7 @@ import com.kota.expenseclaimapprovalapi.exception.StatusConflictException;
 import com.kota.expenseclaimapprovalapi.exception.ValidationException;
 import com.kota.expenseclaimapprovalapi.repository.ExpenseClaimRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 public class ExpenseClaimService {
 
     // Phase1では固定値
@@ -30,6 +32,7 @@ public class ExpenseClaimService {
         this.expenseClaimRepository = expenseClaimRepository;
     }
 
+    @Transactional
     public ExpenseClaimDetail createExpenseClaim(ExpenseClaimInput input) {
         if (input.getTitle() == null || input.getTitle().isBlank()) {
             throw new ValidationException("title must have value");
@@ -68,6 +71,7 @@ public class ExpenseClaimService {
         return toExpenseClaimDetail(expenseClaimEntity);
     }
 
+    @Transactional
     public ExpenseClaimDetail submitExpenseClaim(String expenseClaimId) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canSubmit()) {
@@ -81,6 +85,7 @@ public class ExpenseClaimService {
         return toExpenseClaimDetail(updatedEntity);
     }
 
+    @Transactional
     public ExpenseClaimDetail approveExpenseClaim(String expenseClaimId, String reviewerComment) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canApprove()) {
@@ -92,6 +97,7 @@ public class ExpenseClaimService {
         return toExpenseClaimDetail(updatedEntity);
     }
 
+    @Transactional
     public ExpenseClaimDetail rejectExpenseClaim(String expenseClaimId, String reviewerComment) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canReject()) {
@@ -103,6 +109,7 @@ public class ExpenseClaimService {
         return toExpenseClaimDetail(updatedEntity);
     }
 
+    @Transactional
     public ExpenseClaimDetail editExpenseClaim(String expenseClaimId, ExpenseClaimInput input) {
         ExpenseClaimEntity expenseClaimEntity = getExpenseClaimOrThrow(expenseClaimId);
         if (!expenseClaimEntity.getStatus().canEdit()) {
