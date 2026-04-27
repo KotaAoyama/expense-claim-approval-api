@@ -156,7 +156,7 @@ Service層に対して以下のテストを実施しています：
 ### 1. ビルド
 
 ```bash
-./mvnw clean package -DskipTests
+./mvnw clean package
 ```
 
 ### 2. 起動
